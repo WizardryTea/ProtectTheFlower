@@ -1,0 +1,183 @@
+using UnityEngine;
+using System.Collections; //для корунтины
+using System.Linq;
+
+public class ItemInteraction : MonoBehaviour
+{
+    public InventoryManager inventoryManager;
+    private Camera mainCamera;
+    [SerializeField] private ParticleSystem waterParticles; // эффект полива
+    private Coroutine wateringCoroutine;
+    private Camera[] allCameras;
+    private void Start()
+    {
+        allCameras = FindObjectsOfType<Camera>();
+
+        //Если выпало из памяти установить InventoryManager в инспекторе
+        if (inventoryManager == null)
+        {
+            inventoryManager = FindFirstObjectByType<InventoryManager>();
+            //Debug.LogError("InventoryManager не найден!");
+            //return;
+        }
+        if (waterParticles != null)
+        {
+            waterParticles.Stop();
+        }
+    }
+    /*
+    private void OnMouseDown()
+    {
+        if (gameObject.CompareTag("OneGlass"))
+        {
+            InventoryItem newItem = new InventoryItem("EmptyGlass", inventoryManager.emptyGlassIcon);
+            inventoryManager.AddItemToInventory(newItem);
+            Debug.Log("Клик на стакан.");
+        }
+
+        if (gameObject.CompareTag("Sink"))
+        {
+            InventoryItem item = inventoryManager.GetItemFromInventory("EmptyGlass");
+
+            if (item != null)
+            {
+                // Заменяем EmptyGlass на PureyWater
+                inventoryManager.RemoveItemFromInventory("EmptyGlass");
+                InventoryItem pureWaterItem = new InventoryItem("PureWater", inventoryManager.pureWaterIcon);
+                inventoryManager.AddItemToInventory(pureWaterItem);
+            }
+            else
+            {
+                Debug.Log("Нет стакана в инвентаре для использования с раковиной.");
+            }
+        }
+        
+        if (gameObject.CompareTag("Flower"))
+        {
+            InventoryItem item = inventoryManager.GetItemFromInventory("PureWater");
+
+            if (item != null)
+            {
+                inventoryManager.RemoveItemFromInventory("PureWater");
+
+                // Добавляем воду и сохраняем
+                WaterLevel.MyStaticLink.AddWaterHP(20f);
+
+                // Визуальная обратная связь
+                if (waterParticles != null)
+                {
+                    if (wateringCoroutine != null)
+                    {
+                        StopCoroutine(wateringCoroutine);
+                    }
+                    wateringCoroutine = StartCoroutine(PlayWateringEffect());
+                }
+
+                Debug.Log("Использована чистая вода на цветок. +20 к WaterHP");
+            }
+            else
+            {
+                Debug.Log("Нет чистой воды в инвентаре для полива цветка.");
+            }
+        }
+    }
+
+    // Корутина для эффекта полива с задержкой
+    private IEnumerator PlayWateringEffect()
+    {
+        if (waterParticles != null)
+        {
+            waterParticles.Play();
+            yield return new WaitForSeconds(2f); // Ждём 2 секунды
+            waterParticles.Stop();
+        }
+    }
+    */
+
+
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            // Проверяем луч для каждой камеры
+            foreach (var camera in allCameras.Where(c => c.gameObject.activeInHierarchy))
+            {
+                Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+
+                if (Physics.Raycast(ray, out hit))
+                {
+                    HandleInteraction(hit.transform);
+                    break; // Прерываем после первого успешного попадания
+                }
+            }
+        }
+    }
+
+    private void HandleInteraction(Transform hitTransform)
+    {
+        if (hitTransform.CompareTag("OneGlass"))
+        {
+            InventoryItem newItem = new InventoryItem("EmptyGlass", inventoryManager.emptyGlassIcon);
+            inventoryManager.AddItemToInventory(newItem);
+            Debug.Log("Клик на стакан.");
+        }
+        else if (hitTransform.CompareTag("Sink"))
+        {
+            InventoryItem item = inventoryManager.GetItemFromInventory("EmptyGlass");
+
+            if (item != null)
+            {
+                inventoryManager.RemoveItemFromInventory("EmptyGlass");
+                InventoryItem pureWaterItem = new InventoryItem("PureWater", inventoryManager.pureWaterIcon);
+                inventoryManager.AddItemToInventory(pureWaterItem);
+                Debug.Log("Заполнен стакан чистой водой.");
+            }
+            else
+            {
+                Debug.Log("Нет стакана в инвентаре для использования с раковиной.");
+            }
+        }
+        //else if (hitTransform.CompareTag("Flower"))
+        // Проверка, что клик либо на сам FlowerGroup, либо на его дочерний объект
+        else if (hitTransform.CompareTag("Flower") || hitTransform.IsChildOf(transform))
+        {
+            // Если это дочерний объект, проверяем есть ли у родителя тег Flower
+            if (!hitTransform.CompareTag("Flower") && !hitTransform.parent.CompareTag("Flower"))
+                return;
+
+            InventoryItem item = inventoryManager.GetItemFromInventory("PureWater");
+
+            if (item != null)
+            {
+                inventoryManager.RemoveItemFromInventory("PureWater");
+                WaterLevel.MyStaticLink.AddWaterHP(20f);
+
+                if (waterParticles != null)
+                {
+                    if (wateringCoroutine != null)
+                    {
+                        StopCoroutine(wateringCoroutine);
+                    }
+                    // Позиционируем частицы у цветка
+                    waterParticles.transform.position = hitTransform.position;
+                    wateringCoroutine = StartCoroutine(PlayWateringEffect());
+                }
+
+                Debug.Log("Использована чистая вода на цветок. +20 к WaterHP");
+            }
+            else
+            {
+                Debug.Log("Нет чистой воды в инвентаре для полива цветка.");
+            }
+        }
+    }
+
+    private IEnumerator PlayWateringEffect()
+    {
+        waterParticles.Play();
+        yield return new WaitForSeconds(3f);
+        waterParticles.Stop();
+    }
+
+}

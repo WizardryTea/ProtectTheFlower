@@ -1,0 +1,16 @@
+C:\Users\Юлия\AppData\LocalLow\Petrachkova\Proj2
+C:\Users\<UserName>\AppData\LocalLow\<CompanyName>/inventory.json
+
+1. InventoryManager.cs
+- файл содержит логику для инвентаря, его обновления и сохранения/загрузки данных в JSON.
+
+2. InventoryItem.cs
+- каждый предмет
+- файл содержит описание предметов, которые будут храниться в инвентаре (EmptyGlass, DirtyWater...).
+
+3. Inventory.cs
+- класс для хранения списка предметов
+- хранит коллекцию предметов в инвентаре.
+
+4. ItemInteraction.cs
+- файл управляет взаимодействием с объектами в игре, например, объекты с тегом OneGlass (стакан) и Sink (раковина).
