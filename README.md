@@ -42,3 +42,6 @@ ProtectTheFlower / Защити цветочек - Unity Game
 ![image](https://github.com/user-attachments/assets/e1a62738-bd9c-46ea-875b-ee747fdc11c0)
 ![image](https://github.com/user-attachments/assets/1bc78e42-1875-4e95-86f1-0b2156070315)
 ![image](https://github.com/user-attachments/assets/7e75ebc4-fa6c-4e7b-a30a-70188a347cd1)
+
+## Внешний вид приложения
+![image](https://github.com/user-attachments/assets/147ecbbf-ccb2-4e5b-906a-7a417af2033d)
